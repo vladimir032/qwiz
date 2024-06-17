@@ -1,3 +1,14 @@
+:root {
+    --primary-color: #007bff;
+    --background-color: #f7f7f7;
+    --text-color: #333;
+    --correct-color: green;
+    --wrong-color: red;
+    --button-padding: 10px;
+    --button-radius: 5px;
+    --box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
 body {
     font-family: Arial, sans-serif;
     display: flex;
@@ -5,33 +16,26 @@ body {
     align-items: center;
     height: 100vh;
     margin: 0;
-    background: #f7f7f7;
+    background: var(--background-color);
 }
 
 #quiz-container {
     width: 410px;
     background: white;
-    height: 305px;
     border: 1px solid #ddd;
-    border-radius: 5px;
+    border-radius: var(--button-radius);
     padding: 20px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    box-shadow: var(--box-shadow);
     text-align: center;
-
-
-
 }
 
-
 #question {
-
     font-size: 1.2em;
 }
 
 #question-counter {
     font-size: 1.4em;
     margin-bottom: 20px;
-
 }
 
 .hidden {
@@ -46,43 +50,29 @@ body {
 }
 
 .btn {
-    padding: 10px;
+    padding: var(--button-padding);
     border: none;
-    border-radius: 5px;
+    border-radius: var(--button-radius);
     cursor: pointer;
-    background-color: #007bff;
+    background-color: var(--primary-color);
     color: white;
 }
-
-.btnrest {
-    padding: 10px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    background-color: #007bff;
-    color: white;
-    margin-top: 90px;
-
-}
-
 
 .btn:disabled {
     background-color: #cccccc;
 }
 
 .correct {
-    background-color: green !important;
+    background-color: var(--correct-color) !important;
 }
 
 .wrong {
-    background-color: red !important;
+    background-color: var(--wrong-color) !important;
 }
-
 
 @media (max-width: 600px) {
     #quiz-container {
         width: 90%;
-        height: auto;
         padding: 10px;
     }
 
@@ -95,20 +85,15 @@ body {
         font-size: 1em;
     }
 
-    .btn, .btnrest {
+    .btn {
         padding: 8px;
         font-size: 0.9em;
-    }
-
-    .btnrest {
-        margin-top: 50px;
     }
 }
 
 @media (max-width: 400px) {
     #quiz-container {
         width: 100%;
-        height: auto;
         padding: 5px;
     }
 
@@ -121,12 +106,8 @@ body {
         font-size: 1.1em;
     }
 
-    .btn, .btnrest {
+    .btn {
         padding: 5px;
         font-size: 1em;
-    }
-
-    .btnrest {
-        margin-top: 30px;
     }
 }
