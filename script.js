@@ -1,75 +1,13 @@
-const questions = [
-    {
-        question: "How many planets are in the solar system?",
-        answers: [
-            { text: "8", correct: true },
-            { text: "9", correct: false },
-            { text: "6", correct: false },
-            { text: "10", correct: false }
-        ]
-    },
-    {
-        question: "What is the freezing point of water?",
-        answers: [
-            { text: "0", correct: true },
-            { text: "-5", correct: false },
-            { text: "-1", correct: false },
-            { text: "-6", correct: false }
-        ]
-    },
-    {
-        question: "What is the capital of Belarus?",
-        answers: [
-            { text: "Minsk", correct: true },
-            { text: "Moscow", correct: false },
-            { text: "Grodno", correct: false },
-            { text: "Kiyv", correct: false }
-        ]
-
-    },
-    {
-        question: "Which of these countries are in the northern hemisphere of the Earth?",
-        answers: [
-            { text: "Finland", correct: true },
-            { text: "Australia", correct: false },
-            { text: "Somali", correct: false },
-            { text: "France", correct: true }
-        ],
-        multiple: true
-    },
-];
+import { questions, elements } from './constants.js';
 
 let currentQuestionIndex = 0;
 let score = 0;
 let selectedAnswers = [];
 
-const questionCounterElement = document.getElementById('question-counter');
-const questionContainer = document.getElementById('question-container');
-const questionElement = document.getElementById('question');
-const answerButtonsElement = document.getElementById('answer-buttons');
-const nextButton = document.getElementById('next-btn');
-const prevButton = document.getElementById('prev-btn');
-const resultContainer = document.getElementById('result-container');
-const resultElement = document.getElementById('result');
-const restartButton = document.getElementById('restart-btn');
+const { questionCounterElement, questionContainer, questionElement, answerButtonsElement, nextButton, prevButton, resultContainer, resultElement, restartButton } = elements;
 
-nextButton.addEventListener('click', () => {
-    evaluateAnswer();
-    currentQuestionIndex++;
-    if (currentQuestionIndex < questions.length) {
-        setNextQuestion();
-    } else {
-        showResult();
-    }
-});
-
-prevButton.addEventListener('click', () => {
-    if (currentQuestionIndex > 0) {
-        currentQuestionIndex--;
-        setNextQuestion();
-    }
-});
-
+nextButton.addEventListener('click', handleNextButtonClick);
+prevButton.addEventListener('click', handlePrevButtonClick);
 restartButton.addEventListener('click', startQuiz);
 
 function startQuiz() {
@@ -77,10 +15,10 @@ function startQuiz() {
     currentQuestionIndex = 0;
     score = 0;
     selectedAnswers = [];
-    resultContainer.classList.add('hidden');
-    questionContainer.classList.remove('hidden');
-    nextButton.classList.remove('hidden');
-    prevButton.classList.remove('hidden');
+    toggleVisibility(resultContainer, false);
+    toggleVisibility(questionContainer, true);
+    toggleVisibility(nextButton, true);
+    toggleVisibility(prevButton, true);
     setNextQuestion();
 }
 
@@ -89,39 +27,40 @@ function setNextQuestion() {
     showQuestion(questions[currentQuestionIndex]);
     updateQuestionCounter();
     toggleNavigationButtons();
-    saveQuizState();  // Сохраняем состояние квиза
+    saveQuizState();
 }
 
 function showQuestion(question) {
     questionElement.innerText = question.question;
-    question.answers.forEach(answer => {
-        const button = document.createElement('button');
-        button.innerText = answer.text;
-        button.classList.add('btn');
-        if (answer.correct) {
-            button.dataset.correct = answer.correct;
-        }
-        button.addEventListener('click', selectAnswer);
-        answerButtonsElement.appendChild(button);
-    });
+    question.answers.forEach(answer => createAnswerButton(answer));
     if (question.multiple) {
-        const info = document.createElement('div');
-        info.innerText = "This question has multiple correct answers.";
-        info.classList.add('info');
-        questionContainer.appendChild(info);
+        showMultipleAnswersInfo();
     }
 }
 
+function createAnswerButton(answer) {
+    const button = document.createElement('button');
+    button.innerText = answer.text;
+    button.classList.add('btn');
+    if (answer.correct) {
+        button.dataset.correct = answer.correct;
+    }
+    button.addEventListener('click', selectAnswer);
+    answerButtonsElement.appendChild(button);
+}
+
+function showMultipleAnswersInfo() {
+    const info = document.createElement('div');
+    info.innerText = "This question has multiple correct answers.";
+    info.classList.add('info');
+    questionContainer.appendChild(info);
+}
+
 function resetState() {
-    nextButton.classList.add('hidden');
+    toggleVisibility(nextButton, false);
     selectedAnswers = [];
-    while (answerButtonsElement.firstChild) {
-        answerButtonsElement.removeChild(answerButtonsElement.firstChild);
-    }
-    const info = document.querySelector('.info');
-    if (info) {
-        info.remove();
-    }
+    clearElementChildren(answerButtonsElement);
+    removeElementByClass('info');
 }
 
 function selectAnswer(e) {
@@ -131,9 +70,9 @@ function selectAnswer(e) {
     selectedButton.disabled = true;
     selectedAnswers.push(correct);
     if (questions[currentQuestionIndex].multiple || selectedAnswers.length === 1) {
-        nextButton.classList.remove('hidden');
+        toggleVisibility(nextButton, true);
     }
-    saveQuizState();  // Сохраняем состояние
+    saveQuizState();
 }
 
 function evaluateAnswer() {
@@ -147,7 +86,7 @@ function evaluateAnswer() {
     } else if (question.multiple && selectedCorrectAnswers > 0) {
         score += 0.5;
     }
-    saveQuizState();  // Сохраняем состояние
+    saveQuizState();
 }
 
 function updateQuestionCounter() {
@@ -155,12 +94,12 @@ function updateQuestionCounter() {
 }
 
 function showResult() {
-    questionContainer.classList.add('hidden');
-    nextButton.classList.add('hidden');
-    prevButton.classList.add('hidden');
-    resultContainer.classList.remove('hidden');
+    toggleVisibility(questionContainer, false);
+    toggleVisibility(nextButton, false);
+    toggleVisibility(prevButton, false);
+    toggleVisibility(resultContainer, true);
     resultElement.innerText = `You scored ${score} out of ${questions.length}!`;
-    clearQuizState();  // Очищаем состояние
+    clearQuizState();
 }
 
 function toggleNavigationButtons() {
@@ -168,7 +107,6 @@ function toggleNavigationButtons() {
     nextButton.innerText = currentQuestionIndex === questions.length - 1 ? 'Finish' : 'Next';
 }
 
-//работа с localstorage
 function saveQuizState() {
     const state = {
         currentQuestionIndex,
@@ -191,12 +129,46 @@ function clearQuizState() {
     localStorage.removeItem('quizState');
 }
 
-// Загрузка состояния квиза при загрузке страницы
-loadQuizState();
+function handleNextButtonClick() {
+    evaluateAnswer();
+    currentQuestionIndex++;
+    if (currentQuestionIndex < questions.length) {
+        setNextQuestion();
+    } else {
+        showResult();
+    }
+}
 
-// Начало викторины и проверка состояния
+function handlePrevButtonClick() {
+    if (currentQuestionIndex > 0) {
+        currentQuestionIndex--;
+        setNextQuestion();
+    }
+}
+
+function toggleVisibility(element, isVisible) {
+    element.classList.toggle('hidden', !isVisible);
+}
+
+function clearElementChildren(element) {
+    while (element.firstChild) {
+        element.removeChild(element.firstChild);
+    }
+}
+
+function removeElementByClass(className) {
+    const element = document.querySelector(`.${className}`);
+    if (element) {
+        element.remove();
+    }
+}
+
+loadQuizState();
 if (currentQuestionIndex < questions.length) {
     setNextQuestion();
 } else {
     showResult();
 }
+
+
+
